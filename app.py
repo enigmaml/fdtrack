@@ -5,7 +5,23 @@ import gspread
 
 import pandas as pd
 
-sa = gspread.service_account(filename='authcred.json')
+
+credentials ={
+      "type": st.secrets["type"],
+  "project_id": st.secrets["project_id"],
+  "private_key_id": st.secrets["private_key_id"],
+  "private_key": st.secrets["private_key"],
+  "client_email": st.secrets["client_email"],
+  "client_id": st.secrets["client_id"],
+  "auth_uri":st.secrets["auth_uri"] ,
+  "token_uri": st.secrets["token_uri"],
+  "auth_provider_x509_cert_url": st.secrets["auth_provider_x509_cert_url"],
+  "client_x509_cert_url":st.secrets["client_x509_cert_url"] 
+}
+
+
+sa = gspread.service_account_from_dict(credentials)
+
 sh = sa.open("fddetails")
 
 wks = sh.worksheet("Sheet1")
@@ -17,6 +33,8 @@ st.title("FD App")
 
 st.write("## Enter FD Details")
 
+
+ 
 fdForOptions=['','PAPA','MUMMY','MANOJ','ANU','KANCHU']
 
 fdForName=st.selectbox("FD For", fdForOptions)
@@ -37,7 +55,15 @@ fdMaturitydate=st.date_input("Select Maturity date")
 
 fdNo=st.text_input("Enter FD No")
 
-result=st.button('SAVE')
+if st.button('SAVE'):
+    data=[fdNo,fdOpeingdate,initialValue,interestRate,maturityValue,fdMaturitydate,fdForName]
+    #st.write(df.shape[0])
+    n_rows, n_cols = df.shape
+    row_pos=n_rows+2
+    for i in range(n_cols):
+        wks.update_cell(row_pos, i+1, data[i])
+    
+
 
 st.markdown("---")
 
@@ -46,6 +72,7 @@ st.markdown(">Papa")
 
 st.table(df)
 #https://katex.org/docs/supported.html
+
 
 
 
